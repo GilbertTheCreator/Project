@@ -41,14 +41,19 @@ app.get('/api/users', (req, res) => {
 });
 
 app.post('/api/users', async (req, res) => {
+  try {
     const newUser = {
       name: req.body.name
     };
     const user = await Useradd(newUser);
     res.redirect('/api/users');
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
 });
 
 app.put('/api/users/update/:id', async (req, res) => {
+  try {
     const userId = parseInt(req.params.id);
     const updatedName = req.body.name;
     const user = await UserId(userId);
@@ -57,16 +62,22 @@ app.put('/api/users/update/:id', async (req, res) => {
       user.name = updatedName;
       res.status(200).send(`User Updated`);
     }
+  } catch (error) {
+    res.status(404).send(error.message);
   }
-);
+});
 
 app.delete('/api/users/delete/:id', async (req, res) => {
+  try {
     const userId = parseInt(req.params.id);
     const index = users.findIndex(u => u.id === userId);
     if (index !== -1) {
       users.splice(index, 1);
       res.redirect('/api/users');
     }
+  } catch (error) {
+    res.status(404).send(error.message);
+  }
 });
 
 app.listen(port, () => {
