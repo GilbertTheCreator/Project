@@ -13,71 +13,45 @@ const users = [
   { "id": 2, "name": "Jane" }
 ];
 
-function Useradd(user) {
-  return new Promise((resolve, reject) => {
-    if (user && user.name) {
-      user.id = users.length + 1;
-      users.push(user);
-      resolve(user);
-    } else {
-      reject(new Error('Data was invalid'));
-    }
-  });
-}
-
-function UserId(userId) {
-  return new Promise((resolve, reject) => {
-    const user = users.find(u => u.id === userId);
-    if (user) {
-      resolve(user);
-    } else {
-      reject(new Error(`User not found`));
-    }
-  });
-}
-
-app.get('/api/users', (req, res) => {
+app.get('/api/workouts/add/:id', (req,res) =>{
   res.render('users.ejs');
-});
+})
 
-app.post('/api/users', async (req, res) => {
-  try {
-    const newUser = {
-      name: req.body.name
-    };
-    const user = await Useradd(newUser);
+app.post('/api/users', (req, res) => {
+  const newUser ={
+    id:users.length + 1,
+    name: req.body.name
+  };
+  users.push(newUser);
     res.redirect('/api/users');
-  } catch (error) {
-    res.status(400).send(error.message);
-  }
-});
+  });
 
-app.put('/api/users/update/:id', async (req, res) => {
-  try {
+app.put('/api/users/update/:id', (req, res) => {
+  console.log("fired put");
     const userId = parseInt(req.params.id);
     const updatedName = req.body.name;
-    const user = await UserId(userId);
+
+    const user = users.find(w => w.id === userId);
 
     if (user) {
       user.name = updatedName;
       res.status(200).send(`User Updated`);
+    } else {
+      res.status(404).send(`User Not Found`);
     }
-  } catch (error) {
-    res.status(404).send(error.message);
-  }
 });
 
-app.delete('/api/users/delete/:id', async (req, res) => {
-  try {
-    const userId = parseInt(req.params.id);
-    const index = users.findIndex(u => u.id === userId);
+app.delete('/api/users/delete/:id', (req, res) => {
+  const userId = parseInt(req.params.id);
+
+    const index = users.findIndex(w => w.id === userId);
+
     if (index !== -1) {
       users.splice(index, 1);
-      res.redirect('/api/users');
+      res.redirect('/api/users')
+    } else {
+      res.status(404).send(`User was not found`);
     }
-  } catch (error) {
-    res.status(404).send(error.message);
-  }
 });
 
 app.listen(port, () => {
